@@ -1,0 +1,21 @@
+version: '3.4'
+
+services:
+  gnatsd:
+    image: nats
+    restart: on-failure:3
+    # entrypoint: "/gnatsd -DV -m 8222"
+
+  nanux:
+    build:
+      context: .
+      dockerfile: ./goflow/build/dev/Dockerfile
+    volumes:
+      - .:/home/go
+      - ./goflow/build/dev/.go:/go
+    # ports:
+      # - 2345:2345
+    security_opt:
+      - seccomp:unconfined
+    command: /bin/bash
+    tty: true

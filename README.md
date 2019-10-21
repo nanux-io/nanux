@@ -1,6 +1,6 @@
 # Nanux
 
-Nanux is a toolkit fordeployig microservice.
+Nanux is a toolkit for deploying microservice.
 
 *Work in progress*
 
@@ -8,7 +8,7 @@ Nanux is a toolkit fordeployig microservice.
 
 ### Installation
 
-1. Create the folde which bin the docker container GOPATH: `mkdir ./goflow/build/dev/.go`
+1. Create the folder which bin the docker container `GOPATH`: `mkdir ./goflow/build/dev/.go`
 2. Launch the docker container : `docker-compose up`
 3. Enter in the container: `docker-compose exec nanux bash`
 4. Install dev dependencies in the container: `./goflow/scripts/dev/install-container-stack`
@@ -19,12 +19,12 @@ Nanux is a toolkit fordeployig microservice.
 ### Editor
 
 The project used the go modules, in order to have tools working in your
-editor don't forget to add the container GOPATH to the host GOPATH when
+editor don't forget to add the container `GOPATH` to the host `GOPATH` when
 working on the project.
 
-#### VSCode
+#### VS Code
 
-For vscode, add the followin setting for the workspace:
+For VS Code, add the followin setting for the workspace:
 
 ```json
 {

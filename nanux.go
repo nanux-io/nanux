@@ -53,7 +53,7 @@ func (n *Nanux) Close() error {
 // en error
 func (n *Nanux) HandleError(errHandler handler.ManageError) error {
 	if n.isActionAdded == true {
-		return errors.New("Can not add error handler after adding action to handle")
+		return errors.New("Can not add error handler after action already added")
 	}
 
 	return n.L.HandleError(errHandler)

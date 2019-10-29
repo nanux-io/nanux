@@ -23,7 +23,7 @@ type Opt struct {
 type OptName string
 
 // ListenerAction is the action used by the transporter. The difference with a
-// simple Action is that there is no context in the functionbecause it is provided by the
+// simple Action is that there is no context in the function because it is provided by the
 // Nanux instance (check the `On` method of Nanux)
 type ListenerAction struct {
 	Fn   func(request Request) (response []byte, err error)

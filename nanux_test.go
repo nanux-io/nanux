@@ -53,6 +53,16 @@ var _ = Describe("Nanux", func() {
 		})
 	})
 
+	Context("handle action error", func() {
+		It("can be add before any other action", func() {
+			// Add error manager
+			manageError := func(error) []byte { return []byte("Error managed") }
+			err := nanuxInstance.HandleError(manageError)
+
+			Expect(err).NotTo(HaveOccurred())
+		})
+	})
+
 	Context("handle action", func() {
 		It("should provide the global context", func() {
 			sub := "testRoute"
@@ -74,6 +84,16 @@ var _ = Describe("Nanux", func() {
 
 			err := nanuxInstance.Handle(sub, Action{Fn: actionFunc})
 			Expect(err).To(Equal(errors.New("Error occured")))
+		})
+	})
+
+	Context("handle action error", func() {
+		It("should not be added after other actions", func() {
+			// Add error manager
+			manageError := func(error) []byte { return []byte("Error managed") }
+			err := nanuxInstance.HandleError(manageError)
+
+			Expect(err).To(HaveOccurred())
 		})
 	})
 

@@ -20,8 +20,6 @@ ARG LANG=fr_FR.UTF-8
 ARG LANGUAGE=fr_FR:fr
 ARG LC_ALL=fr_FR.UTF-8
 
-ENV GO111MODULE=$GO111MODULE
-
 # TimeZone and locales
 ENV TZ=$TZ
 ENV LANG $LANG
@@ -54,7 +52,10 @@ RUN sed -i -e 's/# en_US.UTF-8 UTF-8/en_US.UTF-8 UTF-8/' /etc/locale.gen && \
     dpkg-reconfigure --frontend=noninteractive locales && \
     update-locale LANG=fr_FR.UTF-8 LC_ALL=fr_FR.UTF-8
 
+# create user and grant the perm on the GOPATH (/go)
 RUN useradd -c 'App user' -m $user -o -u $uid && chown -R $user:$user /go
 
+# Update permissions
+RUN chown $user:$user -R /home/$user/
 USER $user
 WORKDIR /home/go

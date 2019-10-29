@@ -15,7 +15,6 @@
 bower_components/
 node_modules/
 vendor/
-build/*/.go
 */build/*/.go
 
 #
@@ -35,7 +34,7 @@ local/
 public/
 
 vc/
-cover.out
+coverage.out
 coverage.html
 # PhoneGap / Cordova
 #platforms

@@ -2,22 +2,70 @@
 
 Nanux is a toolkit for deploying microservice.
 
-*Work in progress*
+*Work in progress. Breaking change might happen. However nanux is already used in production. *
+
+## Getting started
+
+1. Install nanux into your project: `go get github.com/nanux-io/nanux`
+2. Choose the transporter you which to use (now transporters that are officially
+supported are:
+    * [nats](https://nats.io) : <https://github.com/nanux-io/tnats>
+    * [nanomsg](https://nanomsg.org) : <https://github.com/nanux-io/tnng>
+
+Example of code using nats transporter:
+
+```go
+package main
+
+import (
+  "github.com/nanux-io/nanux"
+  "github.com/nanux-io/nanux/handler"
+  "github.com/nanux-io/tnats"
+)
+
+func main() {
+  // Instantiate nanux
+  t := tnats.New("natsURL", []tnats.Option{})
+  n := nanux.New(&t, nil)
+
+  // Add error handler which will be called when an error an action return an error.
+  // the error handler must be of type `handler.ManageError`
+  errorHandler := func(ctx *interface{}, req Request) ([]byte, error) {
+    // Process the error here.
+    return nil, nil
+  }
+  n.HandleError(errorHandler)
+  
+  // Add action which will be called when "my.route" is reached
+  actionForMyRoute := handler.Action{
+    Fn: func(ctx *interface{}, req Request) ([]byte, error) {
+        return nil, nil
+    },
+  }
+
+  n.Handle("my.route", actionForMyRoute)
+
+  // defer the closing of the connection to the transporter
+  defer n.L.Close()
+
+  // Launch listening
+  if err := n.Listen(); err != nil {
+    log.Fatalf("Problem when starting listening incoming requests - %s\n", err)
+  }
+}
+
+```
 
 ## Development
 
 ### Installation
 
-1. Create the folder which bin the docker container `GOPATH`: `mkdir ./goflow/build/dev/.go`
-2. Launch the docker container : `docker-compose up`
-3. Enter in the container: `docker-compose exec nanux bash`
-4. Install dev dependencies in the container: `./goflow/scripts/dev/install-container-stack`
-    > *delve* for debuging
-    > *reflex* for watching file changes and reloading
-5. Launch watcher to watch file changes and executing tests: `./goflow/scripts/dev/watch`
+1. Launch the docker container : `cd build && docker-compose up`
+2. Enter in the container: `docker-compose exec go bash`
 
 ### Test
 
+To launch test with generation of html coverage page execut :
 `go test -coverprofile=coverage.out &&  go tool cover -html=coverage.out`
 
 ### Editor
@@ -32,7 +80,7 @@ For VS Code, add the followin setting for the workspace:
 
 ```json
 {
-  "go.gopath": "${env:GOPATH}:${workspaceFolder}/goflow/build/dev/.go"`
+  "go.gopath": "${env:GOPATH}:${workspaceFolder}/build/.go"`
 }
 ```
 

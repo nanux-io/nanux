@@ -1,4 +1,4 @@
 package handler
 
-// ManageError defines the type of function to handle errors return by action
-type ManageError func(error) []byte
+// ErrorHandler defines the type of function to handle errors return by action
+type ErrorHandler func(error) []byte

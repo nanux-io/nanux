@@ -13,7 +13,7 @@ type Nanux struct {
 	L transporter.Listener
 	// Ctx is an a nanux scoped context
 	Ctx          interface{}
-	errorHandler handler.ManageError
+	errorHandler handler.ErrorHandler
 }
 
 // Handle defines the action to execute when the given route is reached on the
@@ -25,11 +25,11 @@ func (n *Nanux) Handle(route string, a handler.Action) error {
 		return a.Fn(&n.Ctx, req)
 	}
 
-	listenerAction := handler.ListenerAction{
+	actionListener := handler.ActionListener{
 		Fn:   fn,
 		Opts: a.Opts,
 	}
-	err := n.L.HandleAction(route, listenerAction)
+	err := n.L.HandleAction(route, actionListener)
 
 	return err
 }
@@ -47,7 +47,7 @@ func (n *Nanux) Close() error {
 
 // HandleError specify error handler which must be called when an action return
 // en error
-func (n *Nanux) HandleError(errHandler handler.ManageError) error {
+func (n *Nanux) HandleError(errHandler handler.ErrorHandler) error {
 	return n.L.HandleError(errHandler)
 }
 

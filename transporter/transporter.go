@@ -9,6 +9,6 @@ import (
 type Listener interface {
 	Listen() error
 	Close() error
-	HandleAction(route string, action handler.ListenerAction) error
-	HandleError(handler.ManageError) error
+	HandleAction(route string, action handler.ActionListener) error
+	HandleError(handler.ErrorHandler) error
 }

@@ -22,10 +22,10 @@ type Opt struct {
 // OptName is name of an option. It might be used by transporters.
 type OptName string
 
-// ListenerAction is the action used by the transporter. The difference with a
+// ActionListener is the action used by the transporter. The difference with a
 // simple Action is that there is no context in the function because it is provided by the
 // Nanux instance (check the `On` method of Nanux)
-type ListenerAction struct {
+type ActionListener struct {
 	Fn   func(request Request) (response []byte, err error)
 	Opts []Opt
 }

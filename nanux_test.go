@@ -14,7 +14,7 @@ import (
 	Define fake listener
 \*----------------------------------------------------------------------------*/
 type FakeListener struct {
-	actions        map[string]ListenerAction
+	actions        map[string]ActionListener
 	isListenCalled bool
 	isCloseCalled  bool
 }
@@ -27,7 +27,7 @@ func (f *FakeListener) Close() error {
 	f.isCloseCalled = true
 	return errors.New("Close error")
 }
-func (f *FakeListener) HandleAction(sub string, action ListenerAction) error {
+func (f *FakeListener) HandleAction(sub string, action ActionListener) error {
 	if sub == "testError" {
 		return errors.New("Error occured")
 	}
@@ -35,14 +35,14 @@ func (f *FakeListener) HandleAction(sub string, action ListenerAction) error {
 	return nil
 }
 
-func (f *FakeListener) HandleError(errHandler ManageError) error { return nil }
+func (f *FakeListener) HandleError(errHandler ErrorHandler) error { return nil }
 
 /*----------------------------------------------------------------------------*\
 	Tests implementation
 \*----------------------------------------------------------------------------*/
 var _ = Describe("Nanux", func() {
 	listener := &FakeListener{
-		actions: make(map[string]ListenerAction),
+		actions: make(map[string]ActionListener),
 	}
 	nanuxCtx := "Nanux context"
 	nanuxInstance := New(listener, nanuxCtx)
@@ -56,8 +56,8 @@ var _ = Describe("Nanux", func() {
 	Context("handle action error", func() {
 		It("can be add before any other action", func() {
 			// Add error manager
-			manageError := func(error) []byte { return []byte("Error managed") }
-			err := nanuxInstance.HandleError(manageError)
+			errorHandler := func(error) []byte { return []byte("Error managed") }
+			err := nanuxInstance.HandleError(errorHandler)
 
 			Expect(err).NotTo(HaveOccurred())
 		})

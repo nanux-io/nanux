@@ -86,4 +86,4 @@ For VS Code, add the followin setting for the workspace:
 
 ## Contributor
 
-Thanks to [Nicolas Tall](https://github.com/nicolab) for the feedback.
+Thanks to [Nicolas Talle](https://github.com/nicolab) for the feedback.

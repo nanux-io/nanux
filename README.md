@@ -66,7 +66,7 @@ func main() {
 ### Test
 
 To launch test with generation of html coverage page execut :
-`go test -coverprofile=coverage.out &&  go tool cover -html=coverage.out`
+`go test -coverprofile=coverage.out &&  go tool cover -html=coverage.out -o coverage.html`
 
 ### Editor
 

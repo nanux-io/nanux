@@ -1,8 +1,6 @@
 package nanux
 
 import (
-	"errors"
-
 	"github.com/nanux-io/nanux/handler"
 	"github.com/nanux-io/nanux/transporter"
 )
@@ -14,9 +12,8 @@ type Nanux struct {
 	// L is the instance of listener used by nanux
 	L transporter.Listener
 	// Ctx is an a nanux scoped context
-	Ctx           interface{}
-	isActionAdded bool
-	errorHandler  handler.ManageError
+	Ctx          interface{}
+	errorHandler handler.ManageError
 }
 
 // Handle defines the action to execute when the given route is reached on the
@@ -24,7 +21,6 @@ type Nanux struct {
 // A route is an http route in the case of an http listener, its a channel
 // subscription in the case of a nats listener etc...
 func (n *Nanux) Handle(route string, a handler.Action) error {
-	n.isActionAdded = true
 	fn := func(req handler.Request) ([]byte, error) {
 		return a.Fn(&n.Ctx, req)
 	}
@@ -52,10 +48,6 @@ func (n *Nanux) Close() error {
 // HandleError specify error handler which must be called when an action return
 // en error
 func (n *Nanux) HandleError(errHandler handler.ManageError) error {
-	if n.isActionAdded == true {
-		return errors.New("Can not add error handler after action already added")
-	}
-
 	return n.L.HandleError(errHandler)
 }
 

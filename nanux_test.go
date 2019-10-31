@@ -87,15 +87,15 @@ var _ = Describe("Nanux", func() {
 		})
 	})
 
-	Context("handle action error", func() {
-		It("should not be added after other actions", func() {
-			// Add error manager
-			manageError := func(error) []byte { return []byte("Error managed") }
-			err := nanuxInstance.HandleError(manageError)
+	// Context("handle action error", func() {
+	// 	It("should not be added after other actions", func() {
+	// 		// Add error manager
+	// 		manageError := func(error) []byte { return []byte("Error managed") }
+	// 		err := nanuxInstance.HandleError(manageError)
 
-			Expect(err).To(HaveOccurred())
-		})
-	})
+	// 		Expect(err).To(HaveOccurred())
+	// 	})
+	// })
 
 	Context("listen", func() {
 		It("should call the listen method of the listener", func() {

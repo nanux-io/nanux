@@ -1,60 +1,55 @@
 package nanux
 
-import (
-	"github.com/nanux-io/nanux/handler"
-	"github.com/nanux-io/nanux/transporter"
-)
-
 // Nanux is the base struct to use nanux. It contains the used listeners
 // (nats, http, ...) and a context which can hold for example the instance
 // of the DB to used.
 type Nanux struct {
 	// L is the instance of listener used by nanux
-	L transporter.Listener
+	T Transporter
 	// Ctx is an a nanux scoped context
 	Ctx          interface{}
-	errorHandler handler.ErrorHandler
+	errorHandler ErrorHandler
 }
 
-// Handle defines the action to execute when the given route is reached on the
+// Handle defines the function to execute when the given route is reached on the
 // listener.
 // A route is an http route in the case of an http listener, its a channel
 // subscription in the case of a nats listener etc...
-func (n *Nanux) Handle(route string, a handler.Action) error {
-	fn := func(req handler.Request) ([]byte, error) {
-		return a.Fn(&n.Ctx, req)
+func (n *Nanux) Handle(route string, handler Handler) error {
+	fn := func(req Request) ([]byte, error) {
+		return handler.Fn(&n.Ctx, req)
 	}
 
-	actionListener := handler.ActionListener{
+	tHandler := THandler{
 		Fn:   fn,
-		Opts: a.Opts,
+		Opts: handler.Opts,
 	}
-	err := n.L.HandleAction(route, actionListener)
+	err := n.T.Handle(route, tHandler)
 
 	return err
 }
 
-// Listen start to listen whith the listener (nats, http, etc...) attached to
+// Run launch the transporter (nats, http, etc...) attached to
 // Nanux.
-func (n *Nanux) Listen() error {
-	return n.L.Listen()
+func (n *Nanux) Run() error {
+	return n.T.Run()
 }
 
 // Close the listener connection
 func (n *Nanux) Close() error {
-	return n.L.Close()
+	return n.T.Close()
 }
 
-// HandleError specify error handler which must be called when an action return
+// HandleError specify error handler which must be called when a handler return
 // en error
-func (n *Nanux) HandleError(errHandler handler.ErrorHandler) error {
-	return n.L.HandleError(errHandler)
+func (n *Nanux) HandleError(errHandler ErrorHandler) error {
+	return n.T.HandleError(errHandler)
 }
 
 // New create a new Nanux for nanux
-func New(listener transporter.Listener, ctx interface{}) *Nanux {
+func New(transporter Transporter, ctx interface{}) *Nanux {
 	return &Nanux{
-		L:   listener,
+		T:   transporter,
 		Ctx: ctx,
 	}
 }

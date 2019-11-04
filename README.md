@@ -19,7 +19,6 @@ package main
 
 import (
   "github.com/nanux-io/nanux"
-  "github.com/nanux-io/nanux/handler"
   "github.com/nanux-io/tnats"
 )
 
@@ -30,26 +29,26 @@ func main() {
 
   // Add error handler which will be called when an error an action return an error.
   // the error handler must be of type `handler.ManageError`
-  errorHandler := func(ctx *interface{}, req Request) ([]byte, error) {
+  errorHandler := func(ctx *interface{}, req nanux.Request) ([]byte, error) {
     // Process the error here.
     return nil, nil
   }
   n.HandleError(errorHandler)
   
-  // Add action which will be called when "my.route" is reached
-  actionForMyRoute := handler.Action{
-    Fn: func(ctx *interface{}, req Request) ([]byte, error) {
+  // Add handler which will be called when "my.route" is reached
+  handlerForMyRoute := nanux.Handler{
+    Fn: func(ctx *interface{}, req nanux.Request) ([]byte, error) {
         return nil, nil
     },
   }
 
-  n.Handle("my.route", actionForMyRoute)
+  n.Handle("my.route", handlerForMyRoute)
 
   // defer the closing of the connection to the transporter
-  defer n.L.Close()
+  defer n.Close()
 
-  // Launch listening
-  if err := n.Listen(); err != nil {
+  // Run nanux
+  if err := n.Run(); err != nil {
     log.Fatalf("Problem when starting listening incoming requests - %s\n", err)
   }
 }

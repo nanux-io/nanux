@@ -10,7 +10,7 @@ Nanux is a toolkit for deploying microservice.
 2. Choose the transporter you which to use (now transporters that are officially
 supported are:
     * [nats](https://nats.io) : <https://github.com/nanux-io/tnats>
-    * [nanomsg](https://nanomsg.org) : <https://github.com/nanux-io/tnng>
+    * http : <https://github.com/nanux-io/thttp>
 
 Example of code using nats transporter:
 

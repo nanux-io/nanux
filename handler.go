@@ -5,9 +5,12 @@ package nanux
 // provided to the Nanux instance. It is not a context request scoped
 // but an app scoped one
 type Handler struct {
-	Fn   func(ctx *interface{}, request Request) (response []byte, err error)
+	Fn   HandlerFunc
 	Opts []HandlerOpt
 }
+
+// HandlerFunc is the signature of the functions used by a Handler
+type HandlerFunc func(ctx *interface{}, request Request) (response []byte, err error)
 
 // HandlerOpt is option for action. It will be used by the transporter. The Name
 // is the name of the option it is defined at the transporter lvl and the

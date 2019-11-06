@@ -102,6 +102,45 @@ var _ = Describe("Nanux", func() {
 				err := n.Handle(sub, Handler{Fn: handlerFn})
 				Expect(err).To(Equal(errors.New("Error occured")))
 			})
+
+			Context("when middlewares are provided", func() {
+				var handler Handler
+				route := "mwRoute"
+				handlerMsg := "Response from the handler"
+
+				JustBeforeEach(func() {
+					handler = Handler{
+						Fn: func(ctx *interface{}, req Request) ([]byte, error) {
+							return []byte(handlerMsg), nil
+						},
+					}
+				})
+
+				It("should chain the middlewares and forward the req and call the handler", func() {
+					mw1 := func(fn HandlerFunc) HandlerFunc {
+						return func(ctx *interface{}, req Request) (response []byte, err error) {
+							req.M["mw"] = 1
+							return fn(ctx, req)
+						}
+					}
+					mw2 := func(fn HandlerFunc) HandlerFunc {
+						return func(ctx *interface{}, req Request) (response []byte, err error) {
+							req.M["mw"] = 2
+							return fn(ctx, req)
+						}
+					}
+
+					n.Handle(route, handler, mw1, mw2)
+
+					req := &Request{M: make(map[string]interface{})}
+					res, err := transporter.tHandlers[route].Fn(*req)
+
+					Expect(err).ToNot(HaveOccurred())
+					Expect(res).To(Equal([]byte(handlerMsg)))
+
+					Expect(req.M["mw"].(int)).To(Equal(2))
+				})
+			})
 		})
 
 		Context("run", func() {

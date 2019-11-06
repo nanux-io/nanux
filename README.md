@@ -42,7 +42,24 @@ func main() {
     },
   }
 
+  // Handle route without middleware
   n.Handle("my.route", handlerForMyRoute)
+
+  // Handle route with middlewares
+  mw1 := func(fn HandlerFunc) HandlerFunc {
+    return func(ctx *interface{}, req Request) (response []byte, err error) {
+      return fn(ctx, req)
+    }
+  }
+
+  mw2 := func(fn HandlerFunc) HandlerFunc {
+    return func(ctx *interface{}, req Request) (response []byte, err error) {
+      return fn(ctx, req)
+    }
+  }
+
+  // Middlewares are executed from left to right
+  n.Handle("my.route.with.mw", handlerForMyRoute, mw1, mw2)
 
   // defer the closing of the connection to the transporter
   defer n.Close()

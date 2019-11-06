@@ -15,9 +15,9 @@ type Nanux struct {
 // listener.
 // A route is an http route in the case of an http listener, its a channel
 // subscription in the case of a nats listener etc...
-func (n *Nanux) Handle(route string, handler Handler) error {
+func (n *Nanux) Handle(route string, handler Handler, middlewares ...Middleware) error {
 	fn := func(req Request) ([]byte, error) {
-		return handler.Fn(&n.Ctx, req)
+		return chainMiddleware(handler.Fn, middlewares...)(&n.Ctx, req)
 	}
 
 	tHandler := THandler{

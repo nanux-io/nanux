@@ -13,9 +13,11 @@ import (
 	Define fake listener
 \*----------------------------------------------------------------------------*/
 type FakeTransporter struct {
-	handlers      map[string]THandler
-	isRunCalled   bool
-	isCloseCalled bool
+	tHandlers           map[string]THandler
+	errHandler          ErrorHandler
+	isRunCalled         bool
+	isCloseCalled       bool
+	isHandleErrorCalled bool
 }
 
 func (f *FakeTransporter) Run() error {
@@ -30,85 +32,92 @@ func (f *FakeTransporter) Handle(sub string, tHandler THandler) error {
 	if sub == "testError" {
 		return errors.New("Error occured")
 	}
-	f.handlers[sub] = tHandler
+	f.tHandlers[sub] = tHandler
 	return nil
 }
 
-func (f *FakeTransporter) HandleError(errHandler ErrorHandler) error { return nil }
+func (f *FakeTransporter) HandleError(errHandler ErrorHandler) error {
+	f.errHandler = errHandler
+	f.isHandleErrorCalled = true
+	return nil
+}
 
 /*----------------------------------------------------------------------------*\
 	Tests implementation
 \*----------------------------------------------------------------------------*/
 var _ = Describe("Nanux", func() {
-	transporter := &FakeTransporter{
-		handlers: make(map[string]THandler),
-	}
-	nanuxCtx := "Nanux context"
-	nanuxInstance := New(transporter, nanuxCtx)
+	var nanuxCtx string
+	var transporter *FakeTransporter
 
-	Context("created with New", func() {
-		It("must contain the instance of the listener", func() {
-			Expect(nanuxInstance.T).To(Equal(transporter))
-		})
+	BeforeEach(func() {
+		transporter = &FakeTransporter{
+			tHandlers: make(map[string]THandler),
+		}
+		nanuxCtx = "Nanux context"
 	})
 
-	Context("handle action error", func() {
-		It("can be add before any other action", func() {
-			// Add error manager
+	It("should create a new instance of Nanux", func() {
+		n := New(transporter, nanuxCtx)
+		Expect(n).To(BeAssignableToTypeOf(&Nanux{}))
+	})
+
+	Context("instance", func() {
+		var n *Nanux
+
+		JustBeforeEach(func() {
+			n = New(transporter, nanuxCtx)
+		})
+
+		It("should contain the instance of the transporter", func() {
+			Expect(n.T).To(Equal(transporter))
+		})
+
+		It("should add an error handler", func() {
 			errorHandler := func(error, Request) []byte { return []byte("Error managed") }
-			err := nanuxInstance.HandleError(errorHandler)
+			err := n.HandleError(errorHandler)
 
 			Expect(err).NotTo(HaveOccurred())
-		})
-	})
-
-	Context("handle action", func() {
-		It("should provide the global context", func() {
-			sub := "testRoute"
-			handlerFn := func(ctx *interface{}, req Request) ([]byte, error) {
-				res := *ctx
-				return []byte(res.(string)), nil
-			}
-
-			nanuxInstance.Handle(sub, Handler{Fn: handlerFn})
-			actualRes, _ := transporter.handlers[sub].Fn(Request{})
-			Expect(actualRes).To(Equal([]byte(nanuxCtx)))
+			Expect(transporter.isHandleErrorCalled).To(Equal(true))
 		})
 
-		It("should send error if the action not handled successfully by the listener", func() {
-			sub := "testError"
-			handlerFn := func(ctx *interface{}, req Request) ([]byte, error) {
-				return nil, nil
-			}
+		Context("when handle is called", func() {
+			It("should provide the global context", func() {
+				sub := "testRoute"
+				handlerFn := func(ctx *interface{}, req Request) ([]byte, error) {
+					res := *ctx
+					return []byte(res.(string)), nil
+				}
 
-			err := nanuxInstance.Handle(sub, Handler{Fn: handlerFn})
-			Expect(err).To(Equal(errors.New("Error occured")))
+				n.Handle(sub, Handler{Fn: handlerFn})
+				actualRes, _ := transporter.tHandlers[sub].Fn(Request{})
+				Expect(actualRes).To(Equal([]byte(nanuxCtx)))
+			})
+
+			It("should send error if the action not handled successfully by the listener", func() {
+				sub := "testError"
+				handlerFn := func(ctx *interface{}, req Request) ([]byte, error) {
+					return nil, nil
+				}
+
+				err := n.Handle(sub, Handler{Fn: handlerFn})
+				Expect(err).To(Equal(errors.New("Error occured")))
+			})
 		})
-	})
 
-	// Context("handle action error", func() {
-	// 	It("should not be added after other actions", func() {
-	// 		// Add error manager
-	// 		manageError := func(error) []byte { return []byte("Error managed") }
-	// 		err := nanuxInstance.HandleError(manageError)
-
-	// 		Expect(err).To(HaveOccurred())
-	// 	})
-	// })
-
-	Context("run", func() {
-		It("should call the run method of the transporter", func() {
-			err := nanuxInstance.Run()
-			Expect(transporter.isRunCalled).To(Equal(true))
-			Expect(err).To(Equal(errors.New("Run error")))
+		Context("run", func() {
+			It("should call the run method of the transporter", func() {
+				err := n.Run()
+				Expect(transporter.isRunCalled).To(Equal(true))
+				Expect(err).To(Equal(errors.New("Run error")))
+			})
 		})
-	})
 
-	Context("close", func() {
-		It("should call the close method of the transporter", func() {
-			err := nanuxInstance.Close()
-			Expect(transporter.isCloseCalled).To(Equal(true))
-			Expect(err).To(Equal(errors.New("Close error")))
+		Context("close", func() {
+			It("should call the close method of the transporter", func() {
+				err := n.Close()
+				Expect(transporter.isCloseCalled).To(Equal(true))
+				Expect(err).To(Equal(errors.New("Close error")))
+			})
 		})
 	})
 })

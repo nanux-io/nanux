@@ -6,20 +6,11 @@ package nanux
 // but an app scoped one
 type Handler struct {
 	Fn   HandlerFunc
-	Opts []HandlerOpt
+	Opts map[HandlerOptName]interface{}
 }
 
 // HandlerFunc is the signature of the functions used by a Handler
 type HandlerFunc func(ctx *interface{}, request Request) (response []byte, err error)
-
-// HandlerOpt is option for action. It will be used by the transporter. The Name
-// is the name of the option it is defined at the transporter lvl and the
-// value must be anything. Check the doc of the options to know which value
-// is accepted for each option.
-type HandlerOpt struct {
-	Name  HandlerOptName
-	Value interface{}
-}
 
 // HandlerOptName is name of an option. It might be used by transporters.
 type HandlerOptName string
@@ -29,7 +20,7 @@ type HandlerOptName string
 // Nanux instance (check the `Handle` method of Nanux)
 type THandler struct {
 	Fn   func(request Request) (response []byte, err error)
-	Opts []HandlerOpt
+	Opts map[HandlerOptName]interface{}
 }
 
 // ErrorHandler defines the type of function to handle errors return by action
